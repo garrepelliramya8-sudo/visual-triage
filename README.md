@@ -1,5 +1,9 @@
 # 🏥 Visual Triage — AI-Powered Medical Triage & Provider Matchmaking
 
+<p align="center">
+  <img src="docs/assets/banner.png" alt="Visual Triage Banner" width="100%"/>
+</p>
+
 > **Google ADK 2.0 Multi-Agent Workflow** — Symptom analysis, severity classification, HIPAA consent gating, and live provider matchmaking via MCP tools.
 
 ---
@@ -21,48 +25,25 @@
 
 ## 🏗️ Architecture
 
+<p align="center">
+  <img src="docs/assets/architecture_diagram.png" alt="Workflow Architecture Diagram" width="90%"/>
+</p>
+
 ```
-User Input
-    │
-    ▼
-┌─────────────────────┐
-│  security_checkpoint │ ◄── PII scrubbing + injection detection
-│   (FunctionNode)     │
-└─────┬───────┬────────┘
-      │       │
-   "clean"  "violation"
-      │       │
-      ▼       ▼
-┌──────────┐ ┌──────────────┐
-│ symptom_ │ │ security_    │
-│ analyzer │ │ alert        │──► final_output
-│ (LlmAgent)│ │ (FunctionNode)│
-└─────┬────┘ └──────────────┘
-      │
-      ▼
-┌──────────────────────┐
-│  hitl_consent_gate   │ ◄── HIPAA consent + ZIP code collection
-│  (FunctionNode,      │     Emergency RED → halt with 911 alert
-│   rerun_on_resume)   │
-└─────┬──────┬─────────┘
-      │      │
- "approved" "halt"
-      │      │
-      ▼      ▼
-┌──────────┐ ┌──────────────┐
-│ provider_│ │ final_output │
-│ locator  │ │ (FunctionNode)│
-│ (LlmAgent)│ └──────────────┘
-└─────┬────┘
-      │
-      ▼
-┌──────────────┐
-│ final_output │ ◄── Formats provider recommendations for UI
-│ (FunctionNode)│
-└──────────────┘
+START → security_checkpoint ──► [violation] → security_alert → final_output
+                            └── [clean]  → symptom_analyzer
+                                               ↓
+                                      hitl_consent_gate ──► [halt] → final_output
+                                               ↓ [approved]
+                                      prepare_locator_input
+                                               ↓
+                                      provider_locator (MCP tools)
+                                               ↓
+                                         final_output
 ```
 
 ---
+
 
 ## 📁 Project Structure
 
